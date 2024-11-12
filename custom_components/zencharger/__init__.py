@@ -7,6 +7,7 @@ from homeassistant.const import EVENT_HOMEASSISTANT_STOP, Platform
 from homeassistant.core import Event, HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.typing import ConfigType
+import voluptuous as vol
 
 from .zencharger.api import ZenchargerApi
 from .zencharger.websocket import WebSocketError
@@ -14,6 +15,11 @@ from .zencharger.websocket import WebSocketError
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
+
+SET_CURRENT_SERVICE_NAME = "setCurrentLimit"
+SET_CURRENT_SERVICE_SCHEMA = vol.Schema({
+    vol.Required('current', default=6000): vol.All(int, vol.Range(min=6000, max=32000)),
+})
 
 type ZenchargerConfigEntry = ConfigEntry[ZenchargerApi]
 
@@ -53,4 +59,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             EVENT_HOMEASSISTANT_STOP, _async_disconnect_websocket
         )
     )
+
+    def handleSetCurrentLimit(call):
+        current = call.data.get("current", 32000)
+        api.updateCurrentLimit(current)
+
+    hass.services.async_register(DOMAIN, SET_CURRENT_SERVICE_NAME, handleSetCurrentLimit, schema=SET_CURRENT_SERVICE_SCHEMA)
+
     return True
