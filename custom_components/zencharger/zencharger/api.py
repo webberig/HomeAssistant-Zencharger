@@ -4,6 +4,7 @@ import logging
 
 import httpx
 from requests import get
+import json
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -74,6 +75,20 @@ class ZenchargerApi:
 
     def updateUserConfig(self, config: any):
         return self.__request("patch", "config/user", config)
+
+
+    def updateCurrentLimit(self, new_value):
+        data = self.getSchedules()
+
+        for day, entries in data.items():
+            for entry in entries:
+                if entry["CurrentLimit"] != 0:
+                    entry["CurrentLimit"] = new_value
+
+        self.updateScheduledCharging(data);
+        self.updateUserConfig({
+            "ScheduledChargingEnable": True
+        })
 
     def __request(self, method: str, path: str, body: dict):
         """Perform POST or PATCH call to API"""
