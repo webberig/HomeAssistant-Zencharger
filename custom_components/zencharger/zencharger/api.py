@@ -64,24 +64,16 @@ class ZenchargerApi:
             raise ZenchargerApiError("Could not login with given credentials")
 
     def status(self) -> str:
-        """Get status from API."""
+        return self.__get("auth/status")
 
-        url = self._host + "/api/v1/auth/status"
-        headers = {
-            "accept": "application/json",
-        }
+    def getSchedules(self):
+        return self.__get("config/scheduledcharging/schedules")
 
-        try:
-            response = get(url, headers=headers, timeout=1.5)
-            response.raise_for_status()
+    def updateScheduledCharging(self, chargingSchedule):
+        return self.__request("post", "config/scheduledcharging/schedules", chargingSchedule)
 
-            if "Set-Cookie" in response.headers:
-                self._sessionId = response.headers["Set-Cookie"]
-                return response.headers.get("Set-Cookie")
-
-            raise ZenchargerApiError("Could not get status")
-        except Exception as error:
-            raise ZenchargerApiError("Could not get status")
+    def updateUserConfig(self, config: any):
+        return self.__request("patch", "config/user", config)
 
     def __request(self, method: str, path: str, body: dict):
         """Perform POST or PATCH call to API"""
