@@ -1,7 +1,7 @@
 # Example services.yaml entry
 
 # Service ID
-setCurrentLimit:
+set_current_limit:
   # Different fields that your service action accepts
   fields:
     # Key of the field

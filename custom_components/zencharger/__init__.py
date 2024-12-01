@@ -16,7 +16,7 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-SET_CURRENT_SERVICE_NAME = "setCurrentLimit"
+SET_CURRENT_SERVICE_NAME = "set_current_limit"
 SET_CURRENT_SERVICE_SCHEMA = vol.Schema({
     vol.Required('current', default=6000): vol.All(int, vol.Range(min=1, max=32000)),
 })
